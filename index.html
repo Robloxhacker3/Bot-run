@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot Runner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    textarea {
+      width: 80%;
+      height: 200px;
+      margin: 10px 0;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Discord Bot Runner</h1>
+  <div id="step1">
+    <h2>Step 1: Enter Your Bot Token</h2>
+    <input type="password" id="botToken" placeholder="Enter bot token here">
+    <button onclick="nextStep()">Next</button>
+  </div>
+  <div id="step2" style="display:none;">
+    <h2>Step 2: Enter Bot Code</h2>
+    <textarea id="botCode" placeholder="Paste your bot's JavaScript code here"></textarea>
+    <button onclick="runBot()">Run Bot</button>
+  </div>
+  <div id="consoleOutput" style="display:none;">
+    <h2>Console Output</h2>
+    <textarea id="consoleLog" readonly></textarea>
+  </div>
+  <script>
+    let token = "";
+
+    function nextStep() {
+      token = document.getElementById('botToken').value;
+      if (!token) {
+        alert('Please enter a bot token.');
+        return;
+      }
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+    }
+
+    function runBot() {
+      const code = document.getElementById('botCode').value;
+      if (!code) {
+        alert('Please enter bot code.');
+        return;
+      }
+
+      fetch('/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, code })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert('Error: ' + data.error);
+        } else {
+          document.getElementById('step2').style.display = 'none';
+          document.getElementById('consoleOutput').style.display = 'block';
+          document.getElementById('consoleLog').value = data.output;
+        }
+      })
+      .catch(err => alert('An error occurred: ' + err));
+    }
+  </script>
+</body>
+</html>
